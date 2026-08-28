@@ -1,0 +1,6 @@
+{
+  "name": "PixelLog",
+  "description": "تطبيق اجتماعي لتقييم ومراجعة الألعاب ومشاركتها مع الأصدقاء.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

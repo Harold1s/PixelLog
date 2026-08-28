@@ -1,0 +1,95 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['username', 'displayName']) &&
+             data.username is string && data.username.size() <= 30 &&
+             data.displayName is string && data.displayName.size() <= 50 &&
+             data.get('bio', '') is string && data.get('bio', '').size() <= 500 &&
+             data.get('photoURL', '') is string && data.get('photoURL', '').size() <= 1048576 &&
+             data.get('bannerURL', '') is string && data.get('bannerURL', '').size() <= 1048576 &&
+             data.get('profileColor', '') is string && data.get('profileColor', '').size() <= 20 &&
+             (data.get('favoriteGames', []) is list) &&
+             (data.get('topGames', []) is list) && data.get('topGames', []).size() <= 4 &&
+             data.get('gameStatus', {}) is map &&
+             data.get('lastUsernameChange', '') is string &&
+             data.get('createdAt', '') is string;
+    }
+
+    function isValidReview(data) {
+      return data.keys().hasAll(['gameId', 'userId', 'rating', 'content', 'createdAt']) &&
+             data.gameId is number &&
+             data.userId is string && data.userId == request.auth.uid &&
+             data.rating is number && data.rating >= 0 && data.rating <= 5 &&
+             data.content is string && data.content.size() <= 2000 &&
+             data.get('gameName', '') is string &&
+             data.get('gameImage', '') is string &&
+             data.createdAt is string;
+    }
+
+    function isValidActivity(data) {
+      return data.keys().hasAll(['userId', 'type', 'gameId', 'gameName', 'gameImage', 'createdAt']) &&
+             data.userId is string && data.userId == request.auth.uid &&
+             (data.type == 'review' || data.type == 'status') &&
+             data.gameId is number &&
+             data.gameName is string &&
+             data.gameImage is string &&
+             data.get('status', '') is string &&
+             data.get('rating', 0) is number &&
+             data.createdAt is string;
+    }
+
+    function isValidFollow(data) {
+      return data.keys().hasAll(["followerId", "followingId", "createdAt"]) &&
+             data.followerId is string && data.followerId == request.auth.uid &&
+             data.followingId is string &&
+             data.createdAt is string;
+    }
+
+    match /users/{userId} {
+      allow read: if true;
+      allow create: if isOwner(userId) && isValidUser(incoming());
+      allow update: if isOwner(userId) && isValidUser(incoming());
+      allow delete: if false;
+    }
+
+    match /reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isSignedIn() && isValidReview(incoming());
+      allow update: if isSignedIn() && existing().userId == request.auth.uid && isValidReview(incoming());
+      allow delete: if isSignedIn() && existing().userId == request.auth.uid;
+    }
+
+    match /follows/{followId} {
+      allow read: if true;
+      allow create: if isSignedIn() && isValidFollow(incoming());
+      allow delete: if isSignedIn() && existing().followerId == request.auth.uid;
+    }
+
+    match /activities/{activityId} {
+      allow read: if true;
+      allow create: if isSignedIn() && isValidActivity(incoming());
+      allow update, delete: if false;
+    }
+  }
+}

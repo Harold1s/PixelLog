@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">PixelLog</string>
+    <string name="title_activity_main">PixelLog</string>
+    <string name="package_name">com.pixellog.app</string>
+    <string name="custom_url_scheme">com.pixellog.app</string>
+</resources>

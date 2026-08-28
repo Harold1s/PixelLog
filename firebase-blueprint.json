@@ -1,0 +1,77 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile data",
+      "type": "object",
+      "properties": {
+        "username": { "type": "string", "maxLength": 30 },
+        "displayName": { "type": "string", "maxLength": 50 },
+        "bio": { "type": "string", "maxLength": 500 },
+        "photoURL": { "type": "string", "maxLength": 1048576 },
+        "bannerURL": { "type": "string", "maxLength": 1048576 },
+        "profileColor": { "type": "string", "maxLength": 20 },
+        "favoriteGames": { "type": "array" },
+        "topGames": { "type": "array" },
+        "gameStatus": { "type": "object" },
+        "lastUsernameChange": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["username", "displayName"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "User review for a game",
+      "type": "object",
+      "properties": {
+        "gameId": { "type": "number" },
+        "userId": { "type": "string" },
+        "rating": { "type": "number" },
+        "content": { "type": "string", "maxLength": 2000 },
+        "gameName": { "type": "string" },
+        "gameImage": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["gameId", "userId", "rating", "content", "createdAt"]
+    },
+    "Follow": {
+      "type": "object",
+      "properties": {
+        "followerId": { "type": "string" },
+        "followingId": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["followerId", "followingId", "createdAt"]
+    },
+    "Activity": {
+      "title": "Activity",
+      "description": "User activity log",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "type": { "type": "string" },
+        "gameId": { "type": "number" },
+        "gameName": { "type": "string" },
+        "gameImage": { "type": "string" },
+        "status": { "type": "string" },
+        "rating": { "type": "number" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "type", "gameId", "gameName", "gameImage", "createdAt"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": { "$ref": "#/entities/User" },
+      "description": "User profiles"
+    },
+    "reviews/{reviewId}": {
+      "schema": { "$ref": "#/entities/Review" },
+      "description": "Game reviews"
+    },
+    "activities/{activityId}": {
+      "schema": { "$ref": "#/entities/Activity" },
+      "description": "User activities"
+    }
+  }
+}
